@@ -1,0 +1,64 @@
+include 'configs/1v1/environment.gin'
+include 'configs/1v1/agents/sc2_feature_layer_agent.gin'
+
+import sc2_imitation_learning.dataset.sc2_dataset
+
+
+# Train config
+# ----------------------------------------------------------------------------
+
+train.action_space = %ACTION_SPACE
+train.observation_space = %OBSERVATION_SPACE
+train.data_loader = @SC2DataLoader()
+train.batch_size = 8
+train.sequence_length = 64
+train.total_train_samples = 1e9
+train.l2_regularization = 1e-5
+train.update_frequency = 4
+train.agent_fn = @sc2_feature_layer_agent.SC2FeatureLayerAgent
+train.optimizer_fn = @tf.keras.optimizers.Adam
+train.eval_interval =  1e8
+train.max_to_keep_checkpoints = 10
+train.save_checkpoint_interval = 14400  # 4 hours
+train.tensorboard_log_interval = 10
+train.console_log_interval = 60
+
+tf.keras.optimizers.Adam.learning_rate = 1e-4
+
+SC2DataLoader.path = './data/datasets/v1'
+SC2DataLoader.action_space = %ACTION_SPACE
+SC2DataLoader.observation_space = %OBSERVATION_SPACE
+SC2DataLoader.min_duration = 0.
+SC2DataLoader.min_mmr = 0
+SC2DataLoader.min_apm = 0
+SC2DataLoader.observed_player_races = [1]  # 1=Terran, 2=Zerg, 3=Protoss
+SC2DataLoader.opponent_player_races = [1]  # 1=Terran, 2=Zerg, 3=Protoss
+SC2DataLoader.map_names = None  # ['Kairos Junction LE']
+
+
+
+# Eval config
+# ----------------------------------------------------------------------------
+
+evaluate.envs=[
+    @KairosJunction_tvt_very_easy/SC2SingleAgentEnv,
+    @KairosJunction_tvt_medium/SC2SingleAgentEnv,
+]
+evaluate.num_episodes = 20
+evaluate.random_seed = 21
+evaluate.num_evaluators = 1
+
+SC2SingleAgentEnv.bot_race = 'terran'
+SC2SingleAgentEnv.save_replay_episodes = 1
+
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+
+KairosJunction_tvt_easy/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+
+KairosJunction_tvt_medium/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+
+KairosJunction_tvt_hard/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'

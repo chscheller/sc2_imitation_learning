@@ -1,0 +1,108 @@
+include 'configs/1v1/environment.gin'
+
+evaluate.envs = [
+    @Automaton_tvt_very_easy/SC2SingleAgentEnv,
+    @Automaton_tvt_easy/SC2SingleAgentEnv,
+    @Automaton_tvt_medium/SC2SingleAgentEnv,
+    @Automaton_tvt_hard/SC2SingleAgentEnv,
+
+    @Blueshift_tvt_very_easy/SC2SingleAgentEnv,
+    @Blueshift_tvt_easy/SC2SingleAgentEnv,
+    @Blueshift_tvt_medium/SC2SingleAgentEnv,
+    @Blueshift_tvt_hard/SC2SingleAgentEnv,
+
+    @CeruleanFall_tvt_very_easy/SC2SingleAgentEnv,
+    @CeruleanFall_tvt_easy/SC2SingleAgentEnv,
+    @CeruleanFall_tvt_medium/SC2SingleAgentEnv,
+    @CeruleanFall_tvt_hard/SC2SingleAgentEnv,
+
+    @KairosJunction_tvt_very_easy/SC2SingleAgentEnv,
+    @KairosJunction_tvt_easy/SC2SingleAgentEnv,
+    @KairosJunction_tvt_medium/SC2SingleAgentEnv,
+    @KairosJunction_tvt_hard/SC2SingleAgentEnv,
+
+    @ParaSite_tvt_very_easy/SC2SingleAgentEnv,
+    @ParaSite_tvt_easy/SC2SingleAgentEnv,
+    @ParaSite_tvt_medium/SC2SingleAgentEnv,
+    @ParaSite_tvt_hard/SC2SingleAgentEnv,
+
+    @PortAleksander_tvt_very_easy/SC2SingleAgentEnv,
+    @PortAleksander_tvt_easy/SC2SingleAgentEnv,
+    @PortAleksander_tvt_medium/SC2SingleAgentEnv,
+    @PortAleksander_tvt_hard/SC2SingleAgentEnv,
+
+    @Stasis_tvt_very_easy/SC2SingleAgentEnv,
+    @Stasis_tvt_easy/SC2SingleAgentEnv,
+    @Stasis_tvt_medium/SC2SingleAgentEnv,
+    @Stasis_tvt_hard/SC2SingleAgentEnv
+]
+evaluate.num_episodes = 100
+evaluate.random_seed = 42
+evaluate.num_evaluators = 20
+
+SC2SingleAgentEnv.bot_race = 'terran'
+SC2SingleAgentEnv.game_steps_per_episode = 0
+SC2SingleAgentEnv.save_replay_episodes = 1
+
+Automaton_tvt_very_easy/SC2SingleAgentEnv.map_name = 'Automaton'
+Automaton_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+Automaton_tvt_easy/SC2SingleAgentEnv.map_name = 'Automaton'
+Automaton_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+Automaton_tvt_medium/SC2SingleAgentEnv.map_name = 'Automaton'
+Automaton_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+Automaton_tvt_hard/SC2SingleAgentEnv.map_name = 'Automaton'
+Automaton_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+Blueshift_tvt_very_easy/SC2SingleAgentEnv.map_name = 'Blueshift'
+Blueshift_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+Blueshift_tvt_easy/SC2SingleAgentEnv.map_name = 'Blueshift'
+Blueshift_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+Blueshift_tvt_medium/SC2SingleAgentEnv.map_name = 'Blueshift'
+Blueshift_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+Blueshift_tvt_hard/SC2SingleAgentEnv.map_name = 'Blueshift'
+Blueshift_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+CeruleanFall_tvt_very_easy/SC2SingleAgentEnv.map_name = 'CeruleanFall'
+CeruleanFall_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+CeruleanFall_tvt_easy/SC2SingleAgentEnv.map_name = 'CeruleanFall'
+CeruleanFall_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+CeruleanFall_tvt_medium/SC2SingleAgentEnv.map_name = 'CeruleanFall'
+CeruleanFall_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+CeruleanFall_tvt_hard/SC2SingleAgentEnv.map_name = 'CeruleanFall'
+CeruleanFall_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+KairosJunction_tvt_easy/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+KairosJunction_tvt_medium/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+KairosJunction_tvt_hard/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+ParaSite_tvt_very_easy/SC2SingleAgentEnv.map_name = 'ParaSite'
+ParaSite_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+ParaSite_tvt_easy/SC2SingleAgentEnv.map_name = 'ParaSite'
+ParaSite_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+ParaSite_tvt_medium/SC2SingleAgentEnv.map_name = 'ParaSite'
+ParaSite_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+ParaSite_tvt_hard/SC2SingleAgentEnv.map_name = 'ParaSite'
+ParaSite_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+PortAleksander_tvt_very_easy/SC2SingleAgentEnv.map_name = 'PortAleksander'
+PortAleksander_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+PortAleksander_tvt_easy/SC2SingleAgentEnv.map_name = 'PortAleksander'
+PortAleksander_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+PortAleksander_tvt_medium/SC2SingleAgentEnv.map_name = 'PortAleksander'
+PortAleksander_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+PortAleksander_tvt_hard/SC2SingleAgentEnv.map_name = 'PortAleksander'
+PortAleksander_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'
+
+Stasis_tvt_very_easy/SC2SingleAgentEnv.map_name = 'Stasis'
+Stasis_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+Stasis_tvt_easy/SC2SingleAgentEnv.map_name = 'Stasis'
+Stasis_tvt_easy/SC2SingleAgentEnv.bot_difficulty = 'easy'
+Stasis_tvt_medium/SC2SingleAgentEnv.map_name = 'Stasis'
+Stasis_tvt_medium/SC2SingleAgentEnv.bot_difficulty = 'medium'
+Stasis_tvt_hard/SC2SingleAgentEnv.map_name = 'Stasis'
+Stasis_tvt_hard/SC2SingleAgentEnv.bot_difficulty = 'hard'

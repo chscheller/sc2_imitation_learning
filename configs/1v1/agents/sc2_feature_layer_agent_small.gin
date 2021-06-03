@@ -1,0 +1,291 @@
+import sc2_imitation_learning.agents.sc2_feature_layer_agent
+import sc2_imitation_learning.common.transformer
+
+
+# SC2FeatureLayerAgent
+# ==============================================================================
+
+sc2_feature_layer_agent.SC2FeatureLayerAgent.scalar_encoder = @scalar_encoder/ConcatScalarEncoder()
+sc2_feature_layer_agent.SC2FeatureLayerAgent.unit_group_encoder = @unit_group_encoder/ConcatAverageUnitGroupEncoder()
+sc2_feature_layer_agent.SC2FeatureLayerAgent.screen_encoder = @screen_encoder/ImpalaCNNSpatialEncoder()
+sc2_feature_layer_agent.SC2FeatureLayerAgent.minimap_encoder = @minimap_encoder/ImpalaCNNSpatialEncoder()
+sc2_feature_layer_agent.SC2FeatureLayerAgent.core = @core/tfa.rnn.LayerNormLSTMCell()
+sc2_feature_layer_agent.SC2FeatureLayerAgent.autoregressive_embed_dim = 64
+sc2_feature_layer_agent.SC2FeatureLayerAgent.policy_heads = [
+    @action_type/AutoregressivePolicyHead(),
+    @step_mul/AutoregressivePolicyHead(),
+    @queued/AutoregressivePolicyHead(),
+    @control_group_act/AutoregressivePolicyHead(),
+    @control_group_id/AutoregressivePolicyHead(),
+    @select_point_act/AutoregressivePolicyHead(),
+    @select_add/AutoregressivePolicyHead(),
+    @select_unit_act/AutoregressivePolicyHead(),
+    @select_unit_id/AutoregressivePolicyHead(),
+    @select_worker/AutoregressivePolicyHead(),
+    @build_queue_id/AutoregressivePolicyHead(),
+    @unload_id/AutoregressivePolicyHead(),
+    @screen/AutoregressivePolicyHead(),
+    @screen2/AutoregressivePolicyHead(),
+    @minimap/AutoregressivePolicyHead(),
+]
+
+# ScalarEncoder
+# ==============================================================================
+
+scalar_encoder/ConcatScalarEncoder.action_space = %ACTION_SPACE
+scalar_encoder/ConcatScalarEncoder.feature_encoders = {
+    'player': @PlayerEncoder,
+    'home_race_requested': @RaceEncoder,
+    'away_race_requested': @RaceEncoder,
+    'upgrades': @UpgradesEncoder,
+    'game_loop': @GameLoopEncoder,
+    'available_actions': @AvailableActionsEncoder,
+    'unit_counts': @UnitCountsEncoder
+}
+scalar_encoder/ConcatScalarEncoder.prev_action_encoders = {
+    'action_type': @action_type/ActionEncoder,
+    'step_mul': @step_mul/ActionEncoder
+}
+scalar_encoder/ConcatScalarEncoder.context_feature_names = (
+    'home_race_requested',
+    'away_race_requested',
+    'available_actions'
+)
+
+PlayerEncoder.embedding_size = 16
+RaceEncoder.embedding_size = 16
+UpgradesEncoder.embedding_size = 16
+GameLoopEncoder.embedding_size = 16
+AvailableActionsEncoder.embedding_size = 16
+UnitCountsEncoder.embedding_size = 16
+action_type/ActionEncoder.embedding_size = 16
+step_mul/ActionEncoder.embedding_size = 16
+
+
+# UnitGroupEncoder
+# ==============================================================================
+
+unit_group_encoder/ConcatAverageUnitGroupEncoder.embedding_size = 32
+unit_group_encoder/ConcatAverageUnitGroupEncoder.feature_encoders = {
+    'build_queue': @build_queue/UnitSelectionEncoder,
+    'cargo': @cargo/UnitSelectionEncoder,
+    'control_groups': @control_groups/ControlGroupEncoder,
+    'multi_select': @multi_select/UnitSelectionEncoder
+}
+
+build_queue/UnitSelectionEncoder.max_position = 8
+cargo/UnitSelectionEncoder.max_position = 8
+control_groups/ControlGroupEncoder.max_position = 10
+multi_select/UnitSelectionEncoder.max_position = 64
+
+UnitSelectionEncoder.encoder = @unit_selection_encoder/SC2EntityTransformerEncoder()
+unit_selection_encoder/SC2EntityTransformerEncoder.num_layers = 2
+unit_selection_encoder/SC2EntityTransformerEncoder.model_dim = 32
+unit_selection_encoder/SC2EntityTransformerEncoder.num_heads = 2
+unit_selection_encoder/SC2EntityTransformerEncoder.dff = 64
+unit_selection_encoder/SC2EntityTransformerEncoder.mask_value = 0
+
+ControlGroupEncoder.encoder = @control_group_encoder/SC2EntityTransformerEncoder()
+control_group_encoder/SC2EntityTransformerEncoder.num_layers = 2
+control_group_encoder/SC2EntityTransformerEncoder.model_dim = 32
+control_group_encoder/SC2EntityTransformerEncoder.num_heads = 2
+control_group_encoder/SC2EntityTransformerEncoder.dff = 64
+control_group_encoder/SC2EntityTransformerEncoder.mask_value = 0
+
+
+
+# Screen Encoder
+# ==============================================================================
+
+screen_encoder/ImpalaCNNSpatialEncoder.feature_layer_encoders = {
+    'visibility_map': @screen_visibility_map/OneHotEncoder,
+    'player_relative': @screen_player_relative/OneHotEncoder,
+    'unit_type': @screen_unit_type/UnitTypeEncoder,
+    'selected': @screen_selected/OneHotEncoder,
+    'unit_hit_points_ratio': @screen_unit_hit_points_ratio/ScaleEncoder,
+    'unit_energy_ratio': @screen_unit_energy_ratio/ScaleEncoder,
+    'unit_density_aa': @screen_unit_density_aa/ScaleEncoder
+}
+screen_encoder/ImpalaCNNSpatialEncoder.input_projection_dim = 32
+screen_encoder/ImpalaCNNSpatialEncoder.num_blocks = [2, 2, 2]
+screen_encoder/ImpalaCNNSpatialEncoder.output_channels = [32, 64, 64]
+screen_encoder/ImpalaCNNSpatialEncoder.max_pool_padding = 'SAME'
+screen_encoder/ImpalaCNNSpatialEncoder.spatial_embedding_size = 256
+
+screen_visibility_map/OneHotEncoder.depth = 4
+screen_player_relative/OneHotEncoder.depth = 5
+screen_selected/OneHotEncoder.depth = 2
+screen_unit_hit_points_ratio/ScaleEncoder.factor = 0.003921569  # 1/255
+screen_unit_energy_ratio/ScaleEncoder.factor = 0.003921569  # 1/255
+screen_unit_density_aa/ScaleEncoder.factor = 0.003921569  # 1/255
+
+screen_unit_type/UnitTypeEncoder.embed_dim = 32
+screen_unit_type/UnitTypeEncoder.max_unit_count = 512
+screen_unit_type/UnitTypeEncoder.encoder = @screen_unit_type_encoder/ConvNet1D()
+screen_unit_type_encoder/ConvNet1D.output_channels = [32]
+screen_unit_type_encoder/ConvNet1D.kernel_shapes = [1]
+screen_unit_type_encoder/ConvNet1D.strides = [1]
+screen_unit_type_encoder/ConvNet1D.paddings = ['SAME']
+screen_unit_type_encoder/ConvNet1D.activate_final = True
+
+
+
+# Minimap Encoder
+# ==============================================================================
+
+minimap_encoder/ImpalaCNNSpatialEncoder.feature_layer_encoders = {
+    'camera': @minimap_camera/OneHotEncoder,
+    'player_relative': @minimap_player_relative/OneHotEncoder,
+    'alerts': @minimap_alerts/OneHotEncoder,
+}
+minimap_encoder/ImpalaCNNSpatialEncoder.input_projection_dim = 32
+minimap_encoder/ImpalaCNNSpatialEncoder.num_blocks = [2, 2, 2]
+minimap_encoder/ImpalaCNNSpatialEncoder.output_channels = [32, 64, 64]
+minimap_encoder/ImpalaCNNSpatialEncoder.max_pool_padding = 'SAME'
+minimap_encoder/ImpalaCNNSpatialEncoder.spatial_embedding_size = 256
+
+minimap_camera/OneHotEncoder.depth = 2
+minimap_player_relative/OneHotEncoder.depth = 5
+minimap_alerts/OneHotEncoder.depth = 2
+
+
+# LSTM core
+# ==============================================================================
+
+core/tfa.rnn.LayerNormLSTMCell.units = 1024
+
+
+# Policy heads
+# ==============================================================================
+
+# Policy heads: general setup
+# ------------------------------------------------------------------------------
+
+AutoregressivePolicyHead.action_space = %ACTION_SPACE
+
+ActionEmbedding.output_sizes = [256, 64]
+ActionEmbedding.with_layer_norm = False
+
+ActionTypePolicyHead.decoder = @action_type_policy_head/ResMLP()
+action_type_policy_head/ResMLP.output_size = 256
+action_type_policy_head/ResMLP.num_blocks = 4
+action_type_policy_head/ResMLP.with_projection = True
+action_type_policy_head/ResMLP.with_layer_norm = True
+action_type_policy_head/ResMLP.activate_final = True
+
+ScalarPolicyHead.decoder = @scalar_policy_head/MLP()
+scalar_policy_head/MLP.output_sizes = [256, 256]
+scalar_policy_head/MLP.with_layer_norm = False
+scalar_policy_head/MLP.activate_final = True
+
+UnitGroupPointerPolicyHead.query_embedding_output_sizes = [256, 32]
+UnitGroupPointerPolicyHead.key_embedding_output_sizes = [32]
+
+ResSpatialDecoder.out_channels = 64
+ResSpatialDecoder.num_blocks = 4
+
+SpatialPolicyHead.upsample_conv_net = @spatial_policy/ConvNet2DTranspose()
+spatial_policy/ConvNet2DTranspose.output_channels = [32, 16, 16]
+spatial_policy/ConvNet2DTranspose.kernel_shapes = [4, 4, 4]
+spatial_policy/ConvNet2DTranspose.strides = [2, 2, 2]
+spatial_policy/ConvNet2DTranspose.paddings = ['SAME', 'SAME',  'SAME']
+spatial_policy/ConvNet2DTranspose.activate_final = True
+
+
+# Policy heads: head specific setup
+# ------------------------------------------------------------------------------
+
+action_type/AutoregressivePolicyHead.action_name = 'action_type'
+action_type/AutoregressivePolicyHead.policy_head = @action_type/ActionTypePolicyHead
+action_type/AutoregressivePolicyHead.action_embed = @action_type/ActionEmbedding
+action_type/AutoregressivePolicyHead.action_mask = None
+
+step_mul/AutoregressivePolicyHead.action_name = 'step_mul'
+step_mul/AutoregressivePolicyHead.policy_head = @step_mul/ScalarPolicyHead
+step_mul/AutoregressivePolicyHead.action_embed = @step_mul/ActionEmbedding
+step_mul/AutoregressivePolicyHead.action_mask = None
+
+queued/AutoregressivePolicyHead.action_name = 'queued'
+queued/AutoregressivePolicyHead.policy_head = @queued/ScalarPolicyHead
+queued/AutoregressivePolicyHead.action_embed = @queued/ActionEmbedding
+queued/AutoregressivePolicyHead.action_mask = @queued/ActionArgumentMask
+
+control_group_act/AutoregressivePolicyHead.action_name = 'control_group_act'
+control_group_act/AutoregressivePolicyHead.policy_head = @control_group_act/ScalarPolicyHead
+control_group_act/AutoregressivePolicyHead.action_embed = @control_group_act/ActionEmbedding
+control_group_act/AutoregressivePolicyHead.action_mask = @control_group_act/ActionArgumentMask
+
+control_group_id/AutoregressivePolicyHead.action_name = 'control_group_id'
+control_group_id/AutoregressivePolicyHead.policy_head = @control_group_id/UnitGroupPointerPolicyHead
+control_group_id/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+control_group_id/AutoregressivePolicyHead.action_mask = @control_group_id/ActionArgumentMask
+control_group_id/UnitGroupPointerPolicyHead.target_group = 'control_groups'
+
+select_point_act/AutoregressivePolicyHead.action_name = 'select_point_act'
+select_point_act/AutoregressivePolicyHead.policy_head = @select_point_act/ScalarPolicyHead
+select_point_act/AutoregressivePolicyHead.action_embed = @select_point_act/ActionEmbedding
+select_point_act/AutoregressivePolicyHead.action_mask = @select_point_act/ActionArgumentMask
+
+select_add/AutoregressivePolicyHead.action_name = 'select_add'
+select_add/AutoregressivePolicyHead.policy_head = @select_add/ScalarPolicyHead
+select_add/AutoregressivePolicyHead.action_embed = @select_add/ActionEmbedding
+select_add/AutoregressivePolicyHead.action_mask = @select_add/ActionArgumentMask
+
+select_point_act/AutoregressivePolicyHead.action_name = 'select_point_act'
+select_point_act/AutoregressivePolicyHead.policy_head = @select_point_act/ScalarPolicyHead
+select_point_act/AutoregressivePolicyHead.action_embed = @select_point_act/ActionEmbedding
+select_point_act/AutoregressivePolicyHead.action_mask = @select_point_act/ActionArgumentMask
+
+select_add/AutoregressivePolicyHead.action_name = 'select_add'
+select_add/AutoregressivePolicyHead.policy_head = @select_add/ScalarPolicyHead
+select_add/AutoregressivePolicyHead.action_embed = @select_add/ActionEmbedding
+select_add/AutoregressivePolicyHead.action_mask = @select_add/ActionArgumentMask
+
+select_unit_act/AutoregressivePolicyHead.action_name = 'select_unit_act'
+select_unit_act/AutoregressivePolicyHead.policy_head = @select_unit_act/ScalarPolicyHead
+select_unit_act/AutoregressivePolicyHead.action_embed = @select_unit_act/ActionEmbedding
+select_unit_act/AutoregressivePolicyHead.action_mask = @select_unit_act/ActionArgumentMask
+
+select_unit_id/AutoregressivePolicyHead.action_name = 'select_unit_id'
+select_unit_id/AutoregressivePolicyHead.policy_head = @select_unit_id/UnitGroupPointerPolicyHead
+select_unit_id/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+select_unit_id/AutoregressivePolicyHead.action_mask = @select_unit_id/ActionArgumentMask
+select_unit_id/UnitGroupPointerPolicyHead.target_group = 'multi_select'
+
+select_worker/AutoregressivePolicyHead.action_name = 'select_worker'
+select_worker/AutoregressivePolicyHead.policy_head = @select_worker/ScalarPolicyHead
+select_worker/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+select_worker/AutoregressivePolicyHead.action_mask = @select_worker/ActionArgumentMask
+
+build_queue_id/AutoregressivePolicyHead.action_name = 'build_queue_id'
+build_queue_id/AutoregressivePolicyHead.policy_head = @build_queue_id/UnitGroupPointerPolicyHead
+build_queue_id/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+build_queue_id/AutoregressivePolicyHead.action_mask = @build_queue_id/ActionArgumentMask
+build_queue_id/UnitGroupPointerPolicyHead.target_group = 'build_queue'
+
+unload_id/AutoregressivePolicyHead.action_name = 'unload_id'
+unload_id/AutoregressivePolicyHead.policy_head = @unload_id/UnitGroupPointerPolicyHead
+unload_id/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+unload_id/AutoregressivePolicyHead.action_mask = @unload_id/ActionArgumentMask
+unload_id/UnitGroupPointerPolicyHead.target_group = 'cargo'
+
+screen/AutoregressivePolicyHead.action_name = 'screen'
+screen/AutoregressivePolicyHead.policy_head = @screen/SpatialPolicyHead
+screen/AutoregressivePolicyHead.action_embed = @screen/ActionEmbedding
+screen/AutoregressivePolicyHead.action_mask = @screen/ActionArgumentMask
+screen/SpatialPolicyHead.decoder = @ResSpatialDecoder()
+screen/SpatialPolicyHead.map_skip = 'screen'
+
+screen2/AutoregressivePolicyHead.action_name = 'screen2'
+screen2/AutoregressivePolicyHead.policy_head = @screen2/SpatialPolicyHead
+screen2/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+screen2/AutoregressivePolicyHead.action_mask = @screen2/ActionArgumentMask
+screen2/SpatialPolicyHead.decoder = @ResSpatialDecoder()
+screen2/SpatialPolicyHead.map_skip = 'screen'
+
+minimap/AutoregressivePolicyHead.action_name = 'minimap'
+minimap/AutoregressivePolicyHead.policy_head = @minimap/SpatialPolicyHead
+minimap/AutoregressivePolicyHead.action_embed = None  # final argument, no need to embed
+minimap/AutoregressivePolicyHead.action_mask = @minimap/ActionArgumentMask
+minimap/SpatialPolicyHead.decoder = @ResSpatialDecoder()
+minimap/SpatialPolicyHead.map_skip = 'minimap'

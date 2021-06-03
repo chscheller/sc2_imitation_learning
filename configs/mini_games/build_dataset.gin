@@ -1,0 +1,9 @@
+include 'configs/mini_games/environment.gin'
+
+ProcessReplay.interface_config = %INTERFACE_CONFIG
+ProcessReplay.action_space = %ACTION_SPACE
+ProcessReplay.observation_space = %OBSERVATION_SPACE
+ProcessReplay.sc2_version = '4.7.1'
+
+StoreReplay.action_space = %ACTION_SPACE
+StoreReplay.observation_space = %OBSERVATION_SPACE

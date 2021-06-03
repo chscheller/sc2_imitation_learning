@@ -1,0 +1,16 @@
+include 'configs/1v1/environment.gin'
+
+FilterReplay.min_duration = 60.
+FilterReplay.min_mmr = 3500
+FilterReplay.min_apm = 60
+FilterReplay.observed_player_races = [1]  # 1=Terran, 2=Zerg, 3=Protoss
+FilterReplay.opponent_player_races = [1]  # 1=Terran, 2=Zerg, 3=Protoss
+FilterReplay.wins_only = True
+
+ProcessReplay.interface_config = %INTERFACE_CONFIG
+ProcessReplay.action_space = %ACTION_SPACE
+ProcessReplay.observation_space = %OBSERVATION_SPACE
+ProcessReplay.sc2_version = '4.7.1'
+
+StoreReplay.action_space = %ACTION_SPACE
+StoreReplay.observation_space = %OBSERVATION_SPACE

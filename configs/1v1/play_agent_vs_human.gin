@@ -1,0 +1,39 @@
+include 'configs/1v1/environment.gin'
+
+
+# Host config
+# ----------------------------------------------------------------------------
+
+
+# Human config
+# ----------------------------------------------------------------------------
+human.map_name = 'KairosJunction'
+human.render = None
+human.remote = None
+human.host = '127.0.0.1'
+human.config_port = 14380
+human.realtime = False
+human.fps = 22.4
+human.rgb_screen_size = (64,64)
+human.rgb_minimap_size = (64,64)
+human.feature_screen_size = None
+human.feature_minimap_size = None
+human.race = 'terran'
+human.player_name = 'Human'
+
+# Agent config
+# ----------------------------------------------------------------------------
+
+agent.env_fn=@SC2LanEnv
+
+SC2LanEnv.host = '127.0.0.1'
+SC2LanEnv.config_port = 14380
+SC2LanEnv.interface_config = %INTERFACE_CONFIG
+SC2LanEnv.observation_space = %OBSERVATION_SPACE
+SC2LanEnv.action_space = %ACTION_SPACE
+SC2LanEnv.agent_race = 'terran'
+SC2LanEnv.agent_name = 'Hambbe'
+SC2LanEnv.visualize = False
+SC2LanEnv.realtime = False
+SC2LanEnv.replay_dir = None
+SC2LanEnv.replay_prefix = None

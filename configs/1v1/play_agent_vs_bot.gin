@@ -1,0 +1,20 @@
+include 'configs/1v1/environment.gin'
+
+
+# Play config
+# ----------------------------------------------------------------------------
+
+play.env_fn=@KairosJunction_tvt_very_easy/SC2SingleAgentEnv
+play.num_episodes = 1
+
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.map_name = 'KairosJunction'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.agent_race = 'terran'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.bot_race = 'terran'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.bot_difficulty = 'very_easy'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.bot_build = 'random'
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.visualize = False
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.save_replay_episodes = 0
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.replay_dir = None
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.replay_prefix = None
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.game_steps_per_episode = 0
+KairosJunction_tvt_very_easy/SC2SingleAgentEnv.random_seed = None

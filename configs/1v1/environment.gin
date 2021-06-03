@@ -1,0 +1,52 @@
+import sc2_imitation_learning.environment.sc2_environment
+
+INTERFACE_CONFIG = @interface_config/singleton()
+interface_config/singleton.constructor = @SC2InterfaceConfig
+SC2InterfaceConfig.dimension_screen = (64, 64)
+SC2InterfaceConfig.dimension_minimap = (64, 64)
+SC2InterfaceConfig.screen_features = ('visibility_map', 'player_relative', 'unit_type', 'selected',
+                                      'unit_hit_points_ratio', 'unit_energy_ratio', 'unit_density_aa')
+SC2InterfaceConfig.minimap_features = ('camera', 'player_relative', 'alerts')
+SC2InterfaceConfig.scalar_features = ('player', 'home_race_requested', 'away_race_requested', 'upgrades',
+                                      'game_loop', 'available_actions', 'unit_counts', 'build_queue',
+                                      'build_queue_length', 'cargo', 'cargo_length', 'cargo_slots_available',
+                                      'control_groups', 'multi_select', 'multi_select_length',
+                                      'production_queue_length', 'production_queue')
+SC2InterfaceConfig.available_actions = None
+SC2InterfaceConfig.upgrade_set = None
+SC2InterfaceConfig.max_step_mul = 16
+SC2InterfaceConfig.max_multi_select = 64
+SC2InterfaceConfig.max_cargo = 8
+SC2InterfaceConfig.max_build_queue = 8
+SC2InterfaceConfig.max_production_queue = 16
+
+OBSERVATION_SPACE = @observation_space/singleton()
+observation_space/singleton.constructor = @SC2ObservationSpace
+SC2ObservationSpace.config = %INTERFACE_CONFIG
+
+ACTION_SPACE = @action_space/singleton()
+action_space/singleton.constructor = @SC2ActionSpace
+SC2ActionSpace.config = %INTERFACE_CONFIG
+
+SC2SingleAgentEnv.interface_config = %INTERFACE_CONFIG
+SC2SingleAgentEnv.observation_space = %OBSERVATION_SPACE
+SC2SingleAgentEnv.action_space = %ACTION_SPACE
+SC2SingleAgentEnv.map_name = 'KairosJunction'
+SC2SingleAgentEnv.battle_net_map = False
+SC2SingleAgentEnv.agent_race = 'terran'
+SC2SingleAgentEnv.agent_name = 'Hambbe'
+SC2SingleAgentEnv.bot_race = 'zerg'
+SC2SingleAgentEnv.bot_difficulty = 'easy'
+SC2SingleAgentEnv.bot_build = 'random'
+SC2SingleAgentEnv.visualize = False
+SC2SingleAgentEnv.realtime = False
+SC2SingleAgentEnv.save_replay_episodes = 0
+SC2SingleAgentEnv.replay_dir = None
+SC2SingleAgentEnv.replay_prefix = None
+SC2SingleAgentEnv.game_steps_per_episode = None
+SC2SingleAgentEnv.score_index = None
+SC2SingleAgentEnv.score_multiplier = None
+SC2SingleAgentEnv.disable_fog = False
+SC2SingleAgentEnv.ensure_available_actions = True
+SC2SingleAgentEnv.version = '4.7.1'
+SC2SingleAgentEnv.random_seed = None

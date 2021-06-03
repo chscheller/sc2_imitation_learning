@@ -1,0 +1,10 @@
+include 'configs/mini_games/environment.gin'
+
+
+# Play config
+# ----------------------------------------------------------------------------
+
+play.env_fn=@CollectMineralsAndGas/SC2SingleAgentEnv
+play.num_episodes = 1
+
+CollectMineralsAndGas/SC2SingleAgentEnv.map_name = 'CollectMineralsAndGas'

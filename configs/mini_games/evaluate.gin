@@ -1,0 +1,12 @@
+include 'configs/mini_games/environment.gin'
+
+evaluate.envs = [
+    @CollectMineralsAndGas/SC2SingleAgentEnv
+]
+evaluate.num_episodes = 100
+evaluate.random_seed = 42
+evaluate.num_evaluators = 2
+
+SC2SingleAgentEnv.save_replay_episodes = 1
+
+CollectMineralsAndGas/SC2SingleAgentEnv.map_name = 'CollectMineralsAndGas'
