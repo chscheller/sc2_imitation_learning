@@ -30,7 +30,7 @@ To install StarCraft II, you can follow the instructions at https://github.com/d
 
 On Linux: From the available versions, version 4.7.1 is strongly recommended. 
 Other versions are not tested and might run into compatibility issues with this code or the PySC2 library. 
-Also, replays are tied to the StarCraft II version in which they were recorded, and version 4.7.1 has the largest number of replays currently available through the Blizzard Game Data APIs.
+Also, replays are tied to the StarCraft II version in which they were recorded, and of all the binaries available, version 4.7.1 has the largest number of replays currently available through the Blizzard Game Data APIs.
 
 On Windows/MacOS: The binaries for a certain game version will be downloaded automatically when opening a replay of that version via the game client. 
 
@@ -39,21 +39,21 @@ On Windows/MacOS: The binaries for a certain game version will be downloaded aut
 
 Download the [ladder maps](https://github.com/Blizzard/s2client-proto#map-packs) and extract them to the `StarCraftII/Maps/` directory.
 
-### Clone repository
+### Get the Code
 
 ```shell script
 git clone https://github.com/metataro/sc2_imitation_learning.git
 ```
 
-### Install Python libraries
+### Install the Python Libraries
 
 ```shell script
 pip install -r requirements.txt
 ```
 
-## Train your own agent
+## Train Your Own Agent
 
-### Download replay packs
+### Download Replay Packs
 
 There are replay packs available for [direct download](https://github.com/Blizzard/s2client-proto#replay-packs), 
 however, a much larger number of replays can be downloaded via the [Blizzard Game Data APIs](https://develop.battle.net/documentation/guides/game-data-apis).
@@ -70,7 +70,7 @@ python -m scripts.download_replays \
   --filter_version sort
 ```
 
-### Prepare the dataset
+### Prepare the Dataset
 
 Having downloaded the replay packs, you can preprocess and combine them into a dataset as follows:
 
@@ -81,7 +81,12 @@ python -m scripts.build_dataset \
   --dataset_path ./data/datasets/v1
 ```
 
-### Run the training
+Note that depending on the configuration, the resulting dataset may require large amounts of disk space (> 1TB).
+For example, the configuration defined in `./configs/1v1/build_dataset.gin` results in a dataset with the size of about 4.5TB, 
+although only less than 5% of the 4.7.1 replays are used.
+
+
+### Run the Training
 
 After preparing the dataset, you can run behaviour cloning training as follows:
 
@@ -93,18 +98,14 @@ By default, the training will be parallelized across all available GPUs.
 You can limit the number of used GPUs by setting the environment variable `CUDA_VISIBLE_DEVICES`.
 
 The parameters in `configs/1v1/behaviour_cloning.gin` are optimized for a hardware setup with four Nvidia GTX 1080Ti GPUs 
-and 20 physical CPUs (40 logical CPUs), where it takes around one week to complete.
-Additionally, there are two other configurations targeted at machines with a single Nvidia GTX 1080Ti GPU: 
-one with a smaller batch size and gradient accumulation (`configs/1v1/behaviour_cloning_single_gpu.gin`)
-and one with a smaller network architecture (`configs/1v1/behaviour_cloning_small.gin`).
-The former requires more time to train, and the latter produces significantly weaker agents.
+and 20 physical CPUs (40 logical CPUs), where the training takes around one week to complete.
 You may need to adjust these configurations to fit your hardware specifications.
 
-By default, logs are written to a tensoboard log file inside the experiment directory. 
-You can also enable logging to [Weights & Biases](https://wandb.ai/) by setting the flag `--wandb_logging_enabled`.
+Logs are written to a tensoboard log file inside the experiment directory. 
+You can additionally enable logging to [Weights & Biases](https://wandb.ai/) by setting the `--wandb_logging_enabled` flag.
 
 
-### Run the evaluation
+### Run the Evaluation
 
 You can evaluate trained agents against built-in A.I. as follows:
 
@@ -114,11 +115,12 @@ python -m scripts.evaluate --gin_file configs/1v1/evaluate.gin --logdir <EXPERIM
 
 Replace `<EXPERIMENT_PATH>` with the path to the experiment folder of the agent.
 This will run the evaluation as configured in `configs/1v1/evaluate.gin`. 
+Again, you may need to adjust these configurations to fit your hardware specifications.
+
 By default, all available GPUs will be considered and evaluators will be split evenly across them.
 You can limit the number of used GPUs by setting the environment variable `CUDA_VISIBLE_DEVICES`.
 
-
-## Play against trained agents
+## Play Against Trained Agents
 
 You can challenge yourself to play against trained agents.
 
@@ -134,9 +136,9 @@ Then, in a second console, let the agent join the game:
 python -m scripts.play_agent_vs_human --agent_dir <SAVED_MODEL_PATH>
 ```
 
-Here, replace `<SAVED_MODEL_PATH>` with the path to the where the model is stored (e.g. `/path/to/experiment_dir/saved_model`).
+Replace `<SAVED_MODEL_PATH>` with the path to the where the model is stored (e.g. `/path/to/experiment/saved_model`).
 
-## Download pre-trained agents
+## Download Pre-Trained Agents
 
 There are pre-trained agents available for download:
 
@@ -144,7 +146,7 @@ https://drive.google.com/drive/folders/1PNhOYeA4AkxhTzexQc-urikN4RDhWEUO?usp=sha
 
 ### Agent 1v1/tvt_all_maps
 
-#### Evaluation results
+#### Evaluation Results
 
 The table below shows the win rates of the agent when evaluated in TvT against built-in AI with randomly selected builds.
 Win rate for each map and difficulty level were determined by 100 evaluation matches.
@@ -192,7 +194,7 @@ Video recordings of cherry-picked evaluation games:
     </tr>
 </table>
 
-#### Training data
+#### Training Data
 
 <table>
     <tr>
@@ -246,7 +248,7 @@ Video recordings of cherry-picked evaluation games:
     </tr>
 </table>
 
-#### Agent architecture
+#### Agent Architecture
 
 ![SC2 Featuer Layer Agent Architecture](docs/sc2_feature_layer_agent_architecture.png)
 
