@@ -168,6 +168,7 @@ class StoreReplay(MapFn):
 
     def __call__(self, replay: Replay, **kwargs) -> str:
         replay_name = os.path.splitext(os.path.basename(replay.replay_meta.replay_path))[0]
+        replay_name = f"{replay_name}_{replay.replay_meta.observed_player_id}"
         specs = get_dataset_specs(self.action_space, self.observation_space)
         file_name = store_episode_to_hdf5(
             path=self.dataset_path,
