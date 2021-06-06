@@ -11,7 +11,7 @@ The main features are:
   - Pre-processing of large-scale replay datasets
   - Multi-GPU training
   - Playing against trained agents (Windows / Mac)
-  - [Pretrained agents](#pre-trained-agents) for the Terran vs Terran match-up
+  - [Pretrained agents](#download-pre-trained-agents) for the Terran vs Terran match-up
 
 ## Table of Contents  
 [Installation](#installation)  
