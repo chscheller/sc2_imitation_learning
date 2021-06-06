@@ -176,6 +176,9 @@ def store_episode_to_hdf5(path: str,
                           specs: Dict[str, gym.spaces.Space]) -> str:
     os.makedirs(path, exist_ok=True)
 
+    assert os.path.exists(os.path.join(path, f'{name}.hdf5')) is False, \
+        f"'{name}.hdf5' already exists in '{path}'."
+
     with h5py.File(os.path.join(path, f'{name}.hdf5'), mode='w') as f:
         datasets = {
             key: f.create_dataset(name=key, shape=(len(episode),) + space.shape, dtype=space.dtype)
