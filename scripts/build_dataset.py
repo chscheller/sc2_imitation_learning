@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from typing import Iterator, NamedTuple, List, Dict, Text, AbstractSet
+from typing import Iterator, NamedTuple, List, Dict, Text, AbstractSet, Optional, Set
 
 import gin
 import pypeln as pl
@@ -10,6 +10,7 @@ from absl import flags
 from pypeln.process import IterableQueue
 from pypeln.process.api.filter import FilterFn
 from pypeln.process.api.map import MapFn
+from pysc2 import run_configs
 from pysc2.env.environment import StepType
 from pysc2.env.sc2_env import Race
 from tqdm import tqdm
@@ -19,7 +20,8 @@ from sc2_imitation_learning.common.utils import retry
 from sc2_imitation_learning.dataset.dataset import ActionTimeStep, store_episode_to_hdf5, get_dataset_specs
 from sc2_imitation_learning.dataset.sc2_dataset import SC2REPLAY_RACES
 from sc2_imitation_learning.environment.environment import ActionSpace, ObservationSpace
-from sc2_imitation_learning.environment.sc2_environment import SC2ActionSpace, SC2ObservationSpace, SC2InterfaceConfig
+from sc2_imitation_learning.environment.sc2_environment import SC2ActionSpace, SC2ObservationSpace, SC2InterfaceConfig, \
+    SC2Maps
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -68,7 +70,8 @@ class FilterReplay(FilterFn):
                  min_apm: int = 0,
                  observed_player_races: AbstractSet[Race] = frozenset((Race.protoss, Race.terran, Race.zerg)),
                  opponent_player_races: AbstractSet[Race] = frozenset((Race.protoss, Race.terran, Race.zerg)),
-                 wins_only: bool = False) -> None:
+                 wins_only: bool = False,
+                 map_names: Optional[Set[str]] = None) -> None:
         super().__init__()
         self.min_duration = min_duration
         self.min_mmr = min_mmr
@@ -76,8 +79,11 @@ class FilterReplay(FilterFn):
         self.observed_player_races = observed_player_races
         self.opponent_player_races = opponent_player_races
         self.wins_only = wins_only
+        self.map_names = map_names
 
     def __call__(self, replay_meta: ReplayMeta, **kwargs) -> bool:
+        if not FLAGS.is_parsed():
+            FLAGS(sys.argv)
         observed_player_info = next(
             filter(lambda p: p['PlayerID'] == replay_meta.observed_player_id, replay_meta.replay_info['Players']))
         if len(replay_meta.replay_info['Players']) > 1:
@@ -85,13 +91,15 @@ class FilterReplay(FilterFn):
                 filter(lambda p: p['PlayerID'] != replay_meta.observed_player_id, replay_meta.replay_info['Players']))
         else:
             opponent_player_info = None
+        sc2_maps = SC2Maps(run_configs.get().data_dir)
         return (replay_meta.replay_info['Duration'] >= self.min_duration
                 and observed_player_info.get('MMR', 0) >= self.min_mmr
                 and observed_player_info['APM'] >= self.min_apm
                 and SC2REPLAY_RACES[observed_player_info['AssignedRace']] in self.observed_player_races
                 and (opponent_player_info is None or
                      SC2REPLAY_RACES[opponent_player_info['AssignedRace']] in self.opponent_player_races)
-                and (not self.wins_only or observed_player_info['Result'] == 'Win'))
+                and (not self.wins_only or observed_player_info['Result'] == 'Win')
+                and (self.map_names is None or sc2_maps.normalize_map_name(replay_meta.replay_info['Title']) in self.map_names))
 
 
 @gin.register
